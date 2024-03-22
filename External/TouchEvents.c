@@ -10,6 +10,7 @@
 #include "TouchEvents.h"
 
 #include "IOHIDEventData.h"
+#include <mach/mach_time.h>
 
 const CFStringRef kTLInfoKeyDeviceID = CFSTR("deviceID");
 const CFStringRef kTLInfoKeyTimestamp = CFSTR("timestamp");
@@ -49,8 +50,8 @@ const CFStringRef kTLEventKeyMinorRadius = CFSTR("minorRadius");
 static inline IOFixed tl_float2fixed(double f) { return (IOFixed)(f * 65536.0); }
 
 static inline uint64_t tl_uptime(void) {
-	AbsoluteTime uptimeAbs = AbsoluteToNanoseconds(UpTime());
-	return ((uint64_t)uptimeAbs.hi << 32) + uptimeAbs.lo;
+	uint64_t uptimeAbs = mach_absolute_time();
+	return ((uint64_t)(uptimeAbs >> 32) << 32) + (uint32_t)uptimeAbs;
 }
 
 static inline void setVendorData(IOHIDVendorDefinedEventData* vd, const void* data) {
